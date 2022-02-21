@@ -1,5 +1,5 @@
 ### automatically posts trading ads to rolimons
-- has support for multiple account
+- has support for multiple accounts
 
 ##### how to use
 - put your roblox id, rolimons data, rolimons verification, and desired tags (or leave empty) in the config
