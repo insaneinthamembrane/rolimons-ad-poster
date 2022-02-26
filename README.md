@@ -1,29 +1,12 @@
-### automatically posts trading ads to rolimons
-- has support for multiple accounts
+# Rolimons Ad Creator
 
-##### how to use
-- put your roblox id, rolimons data, rolimons verification, and desired tags (or leave empty) in the config
-- install the requirements from the txt file and then open "run.bat"
+automatically creates trade ads on rolimons
 
-##### example for multiple accounts
-```json
-{
-    "users": [
-        {
-            "rbx_id": "1234",
-            "roli_data": "321xyz",
-            "roli_verification": "123abc",
-            "tags": []
-        },
-        {
-            "rbx_id": "4321",
-            "roli_data": "987xyz",
-            "roli_verification": "765abc",
-            "tags": []
-        }
-    ]
-}
+[Image](https://i.imgur.com/hpElLZv.png)
+
+## Installation / Usage
+
+```bash
+pip install -r requirements.txt
 ```
-
-##### how it looks
-![](https://i.imgur.com/NDISiLG.png)
+after installing the requirements, edit the config to your liking and then run "run.bat"
