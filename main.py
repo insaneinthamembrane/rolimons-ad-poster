@@ -6,11 +6,13 @@ from random import randint, sample
 
 TAGS = ['any', 'demand', 'rares', 'rap', 'robux', 'upgrade']
 
+
 def fetch_user(id_: str) -> str:
     req = get(f'https://users.roblox.com/v1/users/{id_}').json()
 
     # if name is in response then return name else return Unknown
     return 'name' in req and req['name'] or 'Unknown'
+
 
 def gen_random_items(items: list) -> list:
     item_ids = [i['assetId'] for i in items]
@@ -21,6 +23,7 @@ def gen_random_items(items: list) -> list:
 
     # returning 4 random items
     return sample(item_ids, 4)
+
 
 class User:
 
@@ -70,6 +73,7 @@ class User:
             print(f'[[bold green]Success[/bold green]] ({self.name}) Ad posted')
         else:
             print(f'[[bold red]Error[/bold red]] ({self.name}) Error posting ad')
+
 
 with open('config.json') as file:
     config = load(file)
