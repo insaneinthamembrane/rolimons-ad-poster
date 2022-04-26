@@ -1,10 +1,9 @@
 {
-    "users": [
-        {
-            "rbx_id": "",
-            "roli_data": "",
-            "roli_verification": "",
-            "tags": []
-        }
-    ]
+	"users": [
+		{
+			"id": 1234,
+			"roli_data": "",
+			"roli_verification": ""
+		}
+	]
 }

@@ -1,93 +1,68 @@
-from json import load
+import json
+import random
+import time
+import requests
+
 from rich import print
-from time import sleep
-from requests import Session, get
-from random import randint, sample
 
 TAGS = ['any', 'demand', 'rares', 'rap', 'robux', 'upgrade']
 
 
-def fetch_user(id_: str) -> str:
-    req = get(f'https://users.roblox.com/v1/users/{id_}').json()
-
-    # if name is in response then return name else return Unknown
-    return 'name' in req and req['name'] or 'Unknown'
-
-
-def gen_random_items(items: list) -> list:
-    item_ids = [i['assetId'] for i in items]
-
-    # if amount of items owned less than or equal to 4 return items
-    if len(items) <= 4:
-        return item_ids
-
-    # returning 4 random items
-    return sample(item_ids, 4)
-
-
 class User:
-
     users = set()
 
-    def __init__(self, **kwargs) -> None:
-        # setting object attributes
-        for item, val in kwargs.items():
-            setattr(self, item, val)
+    def __init__(self, **kwargs):
+        for attr, val in kwargs.items():
+            setattr(self, attr, val)
 
-        # create request session for each user
-        self.session = Session()
-        self.session.cookies['_RoliData'] = self.roli_data
-        self.session.cookies['_RoliVerification'] = self.roli_verification
-
-        self.name = fetch_user(self.rbx_id)
-        User.users.add(self)
-
-    def fetch_inventory(self) -> None:
-        while True:
-            inventory = get(f'https://inventory.roblox.com/v1/users/{self.rbx_id}/assets/collectibles?limit=100').json()
-
-            # inventory is private or error loading
-            if 'data' in inventory:
-                self.inventory = inventory['data']
-                break
-
-            print(f'[[bold red]Error[/bold red]] Inventory not public. Retrying in 1 minute')
-            sleep(60)
-
-    def post_ad(self) -> None:
-        item_ids = gen_random_items(self.inventory)
-
-        # more than 0 defined tags or 4 random tags from TAGS list
-        tags = len(self.tags) > 0 and self.tags or sample(TAGS.copy(), 4)
-
-        # send request to rolimons
-        post_trade = self.session.post('https://www.rolimons.com/tradeapi/create', json={
-            'player_id': int(self.rbx_id),
-            'offer_item_ids': item_ids,
-            'request_item_ids': [],
-            'request_tags': tags
+        self.session = requests.Session()
+        self.session.cookies.update({
+            '_RoliData': self.roli_data,
+            '_RoliVerification': self.roli_verification
         })
 
-        res = post_trade.json()
-        if res['success']:
-            print(f'[[bold green]Success[/bold green]] ({self.name}) Ad posted')
+        req = self.session.get(f'https://users.roblox.com/v1/users/{self.id}').json()
+        self.name = 'name' in req and req['name'] or 'Unknown'
+        User.users.add(self)
+
+    def fetch_items(self) -> list[int]:
+        while True:
+            inventory = self.session.get(f'https://inventory.roblox.com/v1/users/{self.id}/assets/collectibles?limit=100').json()
+
+            if 'data' in inventory:
+                items = [i['assetId'] for i in inventory['data']]
+                return len(items) <= 4 and items or random.sample(items, 4)
+
+            print(f'[bold red]ERROR[/] ({self.name}) Error fetching inventory. Retrying in 1 minute')
+            time.sleep(60)
+
+    def post_ad(self, item_ids) -> None:
+        random_tags = random.sample(TAGS, 4)
+
+        req = self.session.post('https://www.rolimons.com/tradeapi/create', json={
+            'player_id': int(self.id),
+            'offer_item_ids': item_ids,
+            'request_item_ids': [],
+            'request_tags': random_tags
+        })
+
+        res = req.json()
+        if res.get('success', None):
+            print(f'[bold green]SUCCESS[/] ({self.name}) Ad posted {item_ids} - {random_tags}')
         else:
-            print(f'[[bold red]Error[/bold red]] ({self.name}) Error posting ad')
+            print(f'[bold red]ERROR[/] ({self.name}) Couldn\'t post ad (Reason: {res.get("message")})')
 
 
-with open('config.json') as file:
-    config = load(file)
+with open('config.json', encoding='utf-8') as f:
+    config = json.load(f)
+    for user in config['users']:
+        User(**user)
 
-    # create an instance for each user, fetch their inventory, and then send an ad
-    for i in config['users']:
-        User(**i)
+while 1:
+    for user in User.users:
+        items = user.fetch_items()
+        user.post_ad(items)
 
-while True:
-    for i in User.users:
-        i.fetch_inventory()
-        i.post_ad()
-
-    # random amount of minutes to wait
-    random_wait = randint(15, 19)
-    print(f'[[bold blue]Info[/bold blue]] Waiting {random_wait} minutes')
-    sleep(random_wait * 60)
+    random_time = random.randint(15, 19)
+    print(f'Waiting {random_time} minutes before attempting to post another ad')
+    time.sleep(random_time * 60)
