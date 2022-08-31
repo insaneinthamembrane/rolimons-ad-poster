@@ -1,15 +1,13 @@
 import json
 import random
 import time
+
 import requests
-
 from rich import print
-
-TAGS = ['any', 'demand', 'rares', 'rap', 'robux', 'upgrade']
 
 
 class User:
-    users = set()
+    users = []
 
     def __init__(self, **kwargs):
         for attr, val in kwargs.items():
@@ -23,7 +21,7 @@ class User:
 
         req = self.session.get(f'https://users.roblox.com/v1/users/{self.id}').json()
         self.name = 'name' in req and req['name'] or 'Unknown'
-        User.users.add(self)
+        User.users.append(self)
 
     def fetch_items(self) -> list[int]:
         while True:
@@ -37,7 +35,7 @@ class User:
             time.sleep(60)
 
     def post_ad(self, item_ids) -> None:
-        random_tags = random.sample(TAGS, 4)
+        random_tags = random.sample(['any', 'demand', 'rares', 'rap', 'robux', 'upgrade'], 4)
 
         req = self.session.post('https://www.rolimons.com/tradeapi/create', json={
             'player_id': int(self.id),
