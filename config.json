@@ -1,9 +1,4 @@
 {
-    "users": [
-        {
-            "id": 1234,
-            "roli_data": "",
-            "roli_verification": ""
-        }
-    ]
+    "roli_verification": "",
+    "player_id": 123
 }
