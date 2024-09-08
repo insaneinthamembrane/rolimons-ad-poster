@@ -29,7 +29,7 @@ def fetch_items() -> list[int]:
 def post_ad(item_ids: list[int]) -> None:
     random_tags = random.sample(["any", "demand", "rares", "rap", "robux", "upgrade"], 4)
 
-    req = session.post("https://www.rolimons.com/tradeapi/create", json={"player_id": player_id, "offer_item_ids": item_ids, "request_item_ids": [], "request_tags": random_tags})
+    req = session.post("https://api.rolimons.com/tradeads/v1/createad", json={"player_id": player_id, "offer_item_ids": item_ids, "request_item_ids": [], "request_tags": random_tags})
 
     res = req.json()
     if res.get("success", None):
